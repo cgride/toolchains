@@ -402,7 +402,7 @@ namespace cgride::toolchains
 
   cgride::core::Result<Toolchain> discover_toolchain(CompilerKind preferred)
   {
-    return discover_toolchain(preferred, default_discovery_options_for(preferred));
+    return discover_toolchain(preferred, DiscoveryOptions{});
   }
 
   std::vector<Toolchain> discover_known_toolchains(const DiscoveryOptions &options)
