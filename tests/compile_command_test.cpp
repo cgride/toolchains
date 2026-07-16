@@ -240,7 +240,7 @@ int main()
     auto toolchain = make_gnu_toolchain();
 
     cgride::toolchains::CompileCommandOptions options;
-    options.source = {};
+    options.source = std::filesystem::path{};
     options.object = "build/main.o";
 
     auto result = cgride::toolchains::make_compile_command(toolchain, options);
@@ -255,7 +255,7 @@ int main()
 
     cgride::toolchains::CompileCommandOptions options;
     options.source = "src/main.cpp";
-    options.object = {};
+    options.object = std::filesystem::path{};
 
     auto result = cgride::toolchains::make_compile_command(toolchain, options);
 
