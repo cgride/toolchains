@@ -222,7 +222,7 @@ namespace cgride::toolchains
 
     cgride::core::Command command;
 
-    command.program(*compiler);
+    command.program(compiler->string());
     command.search_in_path(true);
 
     if (is_msvc_like(toolchain.compiler_kind()))

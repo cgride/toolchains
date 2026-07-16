@@ -127,7 +127,7 @@ namespace cgride::toolchains
 
     cgride::core::Command command;
 
-    command.program(toolchain.archiver().value());
+    command.program(toolchain.archiver().value().string());
     command.search_in_path(true);
 
     if (is_msvc_like(toolchain.compiler_kind()))

@@ -250,7 +250,7 @@ namespace cgride::toolchains
 
     cgride::core::Command command;
 
-    command.program(program.value());
+    command.program(program.value().string());
     command.search_in_path(true);
 
     if (is_msvc_like(toolchain.compiler_kind()))
