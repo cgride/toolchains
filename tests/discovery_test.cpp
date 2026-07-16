@@ -17,7 +17,13 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#if defined(_WIN32)
+#include <process.h>
+#define get_process_id _getpid
+#else
 #include <unistd.h>
+#define get_process_id getpid
+#endif
 
 #include <cgride/toolchains/discovery.hpp>
 
@@ -185,6 +191,30 @@ int main()
   }
 
   {
+    auto directory = make_test_directory();
+
+    write_file(directory / "auto-g++");
+
+    cgride::toolchains::DiscoveryOptions options;
+    options.search_paths = {directory};
+    options.include_environment_path = false;
+    options.cxx_compiler_names = {"auto-g++"};
+    options.c_compiler_names = {"missing-gcc"};
+    options.archiver_names = {"missing-ar"};
+    options.linker_names = {"missing-ld"};
+
+    auto result = cgride::toolchains::discover_toolchain(
+        cgride::toolchains::CompilerKind::Unknown,
+        options);
+
+    assert(result);
+    assert(result.value().valid());
+    assert(result.value().cxx_compiler().value() == directory / "auto-g++");
+
+    std::filesystem::remove_all(directory);
+  }
+
+  {
     cgride::toolchains::DiscoveryOptions options;
     options.include_environment_path = false;
 
@@ -193,8 +223,8 @@ int main()
         options);
 
     assert(!result);
-    assert(result.error().code() == cgride::core::ErrorCode::InvalidArgument);
-    assert(result.error().message() == "Cannot discover an unknown compiler kind.");
+    assert(result.error().code() == cgride::core::ErrorCode::NotFound);
+    assert(result.error().message() == "No C++ compiler executable was found.");
   }
 
   {

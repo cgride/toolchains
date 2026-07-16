@@ -206,7 +206,7 @@ int main()
     options.objects = {
         std::filesystem::path("build/main.o"),
     };
-    options.output = {};
+    options.output = std::filesystem::path{};
 
     auto result = cgride::toolchains::make_archive_command(toolchain, options);
 

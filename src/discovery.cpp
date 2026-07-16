@@ -16,6 +16,7 @@
 #include <cgride/toolchains/discovery.hpp>
 
 #include <cstdlib>
+#include <vector>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -143,6 +144,46 @@ namespace cgride::toolchains
       }
 
       return "Unknown";
+    }
+
+    [[nodiscard]] std::vector<CompilerKind> auto_discovery_order()
+    {
+      switch (cgride::core::host_platform())
+      {
+      case cgride::core::Platform::Windows:
+        return {
+            CompilerKind::Msvc,
+            CompilerKind::MinGw,
+            CompilerKind::Gcc,
+            CompilerKind::Clang,
+        };
+
+      case cgride::core::Platform::MacOS:
+      case cgride::core::Platform::IOS:
+        return {
+            CompilerKind::AppleClang,
+            CompilerKind::Clang,
+            CompilerKind::Gcc,
+        };
+
+      case cgride::core::Platform::Linux:
+      case cgride::core::Platform::FreeBSD:
+      case cgride::core::Platform::OpenBSD:
+      case cgride::core::Platform::NetBSD:
+      case cgride::core::Platform::Android:
+      case cgride::core::Platform::Unknown:
+        return {
+            CompilerKind::Gcc,
+            CompilerKind::Clang,
+            CompilerKind::MinGw,
+            CompilerKind::Msvc,
+        };
+      }
+
+      return {
+          CompilerKind::Gcc,
+          CompilerKind::Clang,
+      };
     }
 
   } // namespace
@@ -276,9 +317,20 @@ namespace cgride::toolchains
   {
     if (!is_known(preferred))
     {
+      for (const auto kind : auto_discovery_order())
+      {
+        auto discovered = discover_toolchain(kind, options);
+
+        if (discovered)
+        {
+          return discovered;
+        }
+      }
+
       return Error(
-          ErrorCode::InvalidArgument,
-          "Cannot discover an unknown compiler kind.");
+          ErrorCode::NotFound,
+          "No C++ compiler executable was found.",
+          compiler_display_name(preferred));
     }
 
     auto effective = default_discovery_options_for(preferred);
