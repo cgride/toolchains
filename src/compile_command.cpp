@@ -34,6 +34,21 @@ namespace cgride::toolchains
              !options.object.empty();
     }
 
+    [[nodiscard]] std::string gnu_like_cxx_standard_argument(std::string standard)
+    {
+      if (standard == "c++23")
+      {
+        return "c++2b";
+      }
+
+      if (standard == "gnu++23")
+      {
+        return "gnu++2b";
+      }
+
+      return standard;
+    }
+
     void append_gnu_like_compile_arguments(
         cgride::core::Command &command,
         const Toolchain &toolchain,
@@ -46,7 +61,7 @@ namespace cgride::toolchains
 
       if (options.language == Language::Cxx && !options.cxx_standard.empty())
       {
-        command.arg("-std=" + options.cxx_standard);
+        command.arg("-std=" + gnu_like_cxx_standard_argument(options.cxx_standard));
       }
 
       if (options.debug)

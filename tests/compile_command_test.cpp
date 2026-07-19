@@ -112,7 +112,7 @@ int main()
     assert(contains_arg(args, "src/main.cpp"));
     assert(contains_arg(args, "-o"));
     assert(contains_arg(args, "build/main.o"));
-    assert(contains_arg(args, "-std=c++23"));
+    assert(contains_arg(args, "-std=c++2b"));
     assert(contains_arg(args, "-g"));
     assert(contains_arg(args, "-O0"));
     assert(contains_arg(args, "-Werror"));
