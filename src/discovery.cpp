@@ -62,12 +62,30 @@ namespace cgride::toolchains
     {
       std::vector<std::filesystem::path> entries;
 
-      const auto *path = std::getenv("PATH");
+      std::string path;
 
-      if (path == nullptr)
+#if defined(_MSC_VER)
+      char *buffer = nullptr;
+      std::size_t size = 0;
+
+      if (_dupenv_s(&buffer, &size, "PATH") != 0 ||
+          buffer == nullptr)
       {
         return entries;
       }
+
+      path.assign(buffer);
+      std::free(buffer);
+#else
+      const auto *value = std::getenv("PATH");
+
+      if (value == nullptr)
+      {
+        return entries;
+      }
+
+      path.assign(value);
+#endif
 
       std::stringstream stream(path);
       std::string entry;
