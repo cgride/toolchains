@@ -15,13 +15,13 @@
  */
 #include <cgride/toolchains/discovery.hpp>
 
-#include <cstdlib>
 #include <vector>
 #include <sstream>
 #include <string>
 #include <utility>
 
 #include <cgride/core/error.hpp>
+#include <cgride/core/environment.hpp>
 #include <cgride/core/platform.hpp>
 
 namespace cgride::toolchains
@@ -62,32 +62,14 @@ namespace cgride::toolchains
     {
       std::vector<std::filesystem::path> entries;
 
-      std::string path;
+      const auto path = cgride::core::environment_variable("PATH");
 
-#if defined(_MSC_VER)
-      char *buffer = nullptr;
-      std::size_t size = 0;
-
-      if (_dupenv_s(&buffer, &size, "PATH") != 0 ||
-          buffer == nullptr)
+      if (!path.has_value())
       {
         return entries;
       }
 
-      path.assign(buffer);
-      std::free(buffer);
-#else
-      const auto *value = std::getenv("PATH");
-
-      if (value == nullptr)
-      {
-        return entries;
-      }
-
-      path.assign(value);
-#endif
-
-      std::stringstream stream(path);
+      std::stringstream stream(path.value());
       std::string entry;
 
       const auto separator = cgride::core::path_list_separator(cgride::core::host_platform());
